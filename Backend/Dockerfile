@@ -18,7 +18,7 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Security: run as non-root
+
 RUN addgroup --system appgroup && adduser --system appuser --ingroup appgroup
 
 COPY --from=builder /app/package.json /app/package-lock.json* ./

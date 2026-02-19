@@ -22,6 +22,7 @@ const envSchema = z.object({
   HUGGINGFACE_API_KEY: z.string().min(1, "HUGGINGFACE_API_KEY is required"),
 
   QDRANT_URL: z.string().default("http://localhost:6333"),
+  QDRANT_API_KEY: z.string().optional(),
   QDRANT_COLLECTION: z.string().default("mentor-embeddings"),
 
   REDIS_URL: z.string().optional(),

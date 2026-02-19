@@ -4,6 +4,7 @@ import { logger } from "../utils/logger";
 
 export const qdrantClient = new QdrantClient({
   url: env.QDRANT_URL,
+  apiKey: env.QDRANT_API_KEY,
 });
 
 export const EMBEDDING_DIMENSION = 384; // sentence-transformers/all-MiniLM-L6-v2
