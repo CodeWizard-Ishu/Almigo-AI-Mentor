@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -24,6 +25,7 @@ import { getSummaries } from "@/services/history";
 import type { SessionSummaryOutput, SavedSummaryHistory } from "@/types";
 
 export default function SummarizePage() {
+  useDocumentTitle("Session Summarizer");
   const [transcript, setTranscript] = useState("");
   const { mutate, data: mutationData, isPending, error, reset } = useSummarize();
   const [loadedSummary, setLoadedSummary] = useState<SessionSummaryOutput | null>(null);

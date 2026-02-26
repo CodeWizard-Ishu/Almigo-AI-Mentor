@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { X, Plus, Map, Clock, Target, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -31,6 +32,7 @@ const TIMELINE_OPTIONS = [
 ];
 
 export default function RoadmapPage() {
+  useDocumentTitle("Learning Roadmap Generator");
   const [goal, setGoal] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [skillInput, setSkillInput] = useState("");

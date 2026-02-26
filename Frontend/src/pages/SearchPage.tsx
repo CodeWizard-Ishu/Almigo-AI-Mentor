@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { Search, Users, Star } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,6 +17,7 @@ import { getSearchHistory } from "@/services/history";
 import type { MentorSearchResult, SearchHistoryEntry } from "@/types";
 
 export default function SearchPage() {
+  useDocumentTitle("Find Mentors");
   const { query, setQuery, results, isLoading, error } = useMentorSearch();
 
   return (

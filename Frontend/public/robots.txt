@@ -1,0 +1,11 @@
+# Almigo Robots.txt
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://almigo.vercel.app/sitemap.xml
+
+# Disallow private routes (auth pages don't need indexing)
+User-agent: *
+Disallow: /login
+Disallow: /signup

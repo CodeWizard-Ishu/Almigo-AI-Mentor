@@ -1,4 +1,5 @@
 import { useRef, useEffect } from "react";
+import { useDocumentTitle } from "@/hooks/useDocumentTitle";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, Trash2, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,6 +11,7 @@ import { ChatHistorySidebar } from "@/components/chat/ChatHistorySidebar";
 import { useChat } from "@/hooks/useChat";
 
 export default function ChatPage() {
+  useDocumentTitle("AI Career Chat");
   const {
     messages,
     isStreaming,
