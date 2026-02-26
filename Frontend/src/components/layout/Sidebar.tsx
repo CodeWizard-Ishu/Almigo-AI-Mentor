@@ -7,10 +7,14 @@ import {
   Users,
   GraduationCap,
   X,
+  LogOut,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/store/authStore";
+import { useToastStore } from "@/store/toastStore";
+import { useChatStore } from "@/store/chatStore";
 
 const NAV_ITEMS = [
   {
@@ -45,6 +49,16 @@ interface SidebarProps {
 }
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
+  const { user, logout } = useAuthStore();
+  const addToast = useToastStore((s) => s.addToast);
+  const clearMessages = useChatStore((s) => s.clearMessages);
+
+  async function handleLogout() {
+    await logout();
+    clearMessages();
+    addToast({ type: "info", message: "Signed out successfully." });
+  }
+
   return (
     <>
       {/* Mobile overlay */}
@@ -124,10 +138,37 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="p-3 border-t flex items-center justify-between">
-          <span className="text-xs text-muted-foreground">v1.0</span>
-          <ThemeToggle />
+        {/* User profile + footer */}
+        <div className="p-3 border-t space-y-3">
+          {/* User info */}
+          {user && (
+            <div className="flex items-center gap-3 px-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium truncate">{user.name}</p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  {user.email}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="icon-xs"
+                onClick={handleLogout}
+                className="shrink-0 text-muted-foreground hover:text-destructive"
+                title="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
+
+          {/* Version + theme */}
+          <div className="flex items-center justify-between px-2">
+            <span className="text-xs text-muted-foreground">v1.0</span>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
     </>

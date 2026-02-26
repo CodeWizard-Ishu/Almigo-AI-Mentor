@@ -10,8 +10,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { HistoryPanel } from "@/components/ui/HistoryPanel";
 import { useMentorSearch } from "@/hooks/useMentorSearch";
-import type { MentorSearchResult } from "@/types";
+import { getSearchHistory } from "@/services/history";
+import type { MentorSearchResult, SearchHistoryEntry } from "@/types";
 
 export default function SearchPage() {
   const { query, setQuery, results, isLoading, error } = useMentorSearch();
@@ -43,6 +45,26 @@ export default function SearchPage() {
           autoFocus
         />
       </div>
+
+      {/* History Panel */}
+      <HistoryPanel<SearchHistoryEntry>
+        fetchFn={getSearchHistory}
+        getKey={(item) => item.id}
+        onSelect={(item) => setQuery(item.query)}
+        label="Past Searches"
+        renderItem={(item) => (
+          <div className="space-y-1">
+            <p className="text-sm font-medium truncate">{item.query}</p>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span>Top {item.topK} results</span>
+              <span>·</span>
+              <span>{item.resultIds.length} found</span>
+              <span>·</span>
+              <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        )}
+      />
 
       {/* Error */}
       {error && (

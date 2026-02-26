@@ -6,6 +6,11 @@ import {
   roadmapHandler,
   summarizeHandler,
   searchMentorsHandler,
+  getConversationByIdHandler,
+  getConversationsHandler,
+  getRoadmapsHandler,
+  getSummariesHandler,
+  getSearchHistoryHandler,
 } from "../controllers/ai.controller";
 
 const router = Router();
@@ -36,9 +41,17 @@ const searchMentorsSchema = z.object({
   topK: z.number().int().min(1).max(20).optional().default(5),
 });
 
+// AI action routes (all require auth — applied at app level)
 router.post("/chat", validate(chatSchema), chatHandler);
 router.post("/roadmap", validate(roadmapSchema), roadmapHandler);
 router.post("/summarize", validate(summarizeSchema), summarizeHandler);
 router.post("/search-mentors", validate(searchMentorsSchema), searchMentorsHandler);
+
+// History routes
+router.get("/conversations", getConversationsHandler);
+router.get("/conversations/:id", getConversationByIdHandler);
+router.get("/roadmaps", getRoadmapsHandler);
+router.get("/summaries", getSummariesHandler);
+router.get("/search-history", getSearchHistoryHandler);
 
 export default router;

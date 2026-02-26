@@ -1,13 +1,16 @@
 # Almigo — AI Mentor Backend
 
-Node.js/Express/TypeScript backend for Almigo, an AI mentoring platform.
+Production-grade Node.js/Express/TypeScript backend for Almigo, an AI mentoring platform with user authentication, streaming chat, and semantic search.
 
 ## Features
 
-- **AI Mentor Chat** — Streaming responses via SSE with conversation memory
-- **Learning Roadmap Generator** — Structured JSON roadmaps via Groq (Llama 3.3 70B)
-- **Session Summarizer** — Extract summaries, takeaways, and action items
-- **Semantic Mentor Search** — Embedding-based mentor discovery via Qdrant
+- 🔐 **Authentication** — JWT access tokens + httpOnly refresh cookies, signup/login/logout/refresh flows
+- 💬 **AI Mentor Chat** — Streaming SSE responses with per-user conversation memory and ownership validation
+- 🗺️ **Learning Roadmap Generator** — Structured JSON roadmaps via Groq (Llama 3.3 70B), saved per user
+- 📝 **Session Summarizer** — Extract summaries, takeaways, and action items, saved per user
+- 🔍 **Semantic Mentor Search** — Embedding-based mentor discovery via Qdrant, with search history
+- 📜 **History APIs** — Retrieve past conversations, roadmaps, summaries, and searches per user
+- 🛡️ **Security** — Helmet, CORS, rate limiting, Zod validation, bcrypt password hashing, conversation ownership checks
 
 ## Tech Stack
 
@@ -18,6 +21,7 @@ Node.js/Express/TypeScript backend for Almigo, an AI mentoring platform.
 | Language | TypeScript (strict mode) |
 | ORM | Prisma with Accelerate |
 | Database | PostgreSQL |
+| Auth | JWT (access + refresh) + bcrypt |
 | LLM | Groq SDK (Llama 3.3 70B) |
 | Embeddings | HuggingFace (sentence-transformers/all-MiniLM-L6-v2) |
 | Vector DB | Qdrant |
@@ -28,8 +32,8 @@ Node.js/Express/TypeScript backend for Almigo, an AI mentoring platform.
 
 - Node.js ≥ 20
 - PostgreSQL 16+
-- Groq API key (free tier)
-- HuggingFace API key (free tier)
+- Groq API key (free at [groq.com](https://console.groq.com))
+- HuggingFace API key (free at [huggingface.co](https://huggingface.co/settings/tokens))
 - Qdrant running locally or via Docker
 - Redis (optional)
 - Docker & Docker Compose (optional)
@@ -90,78 +94,82 @@ Server starts at `http://localhost:3000`.
 
 ## API Endpoints
 
-### Health Check
+### Public
 
 ```
-GET /health
+GET  /health                Health check
 ```
 
-### AI Chat (Streaming SSE)
+### Auth (`/api/auth`) — Public
 
 ```
-POST /api/ai/chat
-Content-Type: application/json
-
-{
-  "conversationId": "<conversation-id>",
-  "message": "How do I transition into a senior engineering role?"
-}
+POST /api/auth/signup       Create account (name, email, password)
+POST /api/auth/login        Login (email, password) → access token + refresh cookie
+POST /api/auth/refresh      Refresh access token (uses httpOnly cookie)
+POST /api/auth/logout       Clear refresh cookie
+GET  /api/auth/me           Get current user (requires Bearer token)
 ```
 
-### Learning Roadmap
+### AI (`/api/ai`) — Protected (Bearer token required)
 
 ```
-POST /api/ai/roadmap
-Content-Type: application/json
-
-{
-  "goal": "Become a full-stack developer",
-  "currentSkills": ["HTML", "CSS", "JavaScript"],
-  "timeline": "6 months"
-}
+POST /api/ai/chat           Stream AI response via SSE
+POST /api/ai/roadmap        Generate learning roadmap (saved to DB)
+POST /api/ai/summarize      Summarize transcript (saved to DB)
+POST /api/ai/search-mentors Semantic mentor search (saved to DB)
 ```
 
-### Session Summarizer
+### History (`/api/ai`) — Protected
 
 ```
-POST /api/ai/summarize
-Content-Type: application/json
-
-{
-  "transcript": "Mentor: Let's talk about your career goals..."
-}
+GET  /api/ai/conversations      List user's conversations
+GET  /api/ai/conversations/:id  Get conversation with messages (ownership validated)
+GET  /api/ai/roadmaps           List user's saved roadmaps
+GET  /api/ai/summaries          List user's saved summaries
+GET  /api/ai/search-history     List user's search history
 ```
 
-### Semantic Mentor Search
+## Database Schema
 
-```
-POST /api/ai/search-mentors
-Content-Type: application/json
+| Model | Description |
+|-------|-------------|
+| `User` | Account with bcrypt-hashed password, role (USER/ADMIN) |
+| `Mentor` | Seeded mentor profiles (name, bio, skills, expertise) |
+| `Conversation` | Chat sessions owned by a user (`menteeId`) |
+| `Message` | Individual chat messages (USER/ASSISTANT/SYSTEM roles) |
+| `SavedRoadmap` | Generated roadmaps linked to user |
+| `SavedSummary` | Generated summaries linked to user |
+| `SearchHistory` | Mentor search queries and results linked to user |
 
-{
-  "query": "machine learning expert who can help with NLP",
-  "topK": 5
-}
-```
+## Security
+
+- **Authentication:** JWT access tokens (short-lived) + httpOnly refresh cookies (7-day)
+- **Password Hashing:** bcrypt with 12 salt rounds
+- **Conversation Ownership:** All data endpoints scope queries by `userId`; chat validates `menteeId === userId` before allowing access
+- **Input Validation:** Zod schemas on all request bodies
+- **Rate Limiting:** Configurable per-window limits (global + auth-specific)
+- **Headers:** Helmet.js for security headers
+- **CORS:** Configurable allowed origins
 
 ## Project Structure
 
 ```
 src/
 ├── config/          # Environment, Groq, Qdrant, Prisma, Redis clients
-├── controllers/     # Request handlers
-├── middleware/       # Error handler, rate limiter, validation
-├── routes/          # Express route definitions
-├── services/        # Business logic (AI, embeddings, mentor search)
+├── controllers/     # Auth + AI request handlers
+├── middleware/       # Auth (JWT), error handler, rate limiter, validation, role guard
+├── routes/          # Auth + AI route definitions
+├── schemas/         # Zod validation schemas
+├── services/        # Business logic (auth, AI, embeddings, mentor search)
 ├── scripts/         # Seed & embed-mentors scripts
-├── utils/           # Logger utility
+├── utils/           # Logger, JWT helpers
 ├── app.ts           # Express app factory
 └── server.ts        # Entry point with graceful shutdown
 ```
 
 ## Docker
 
-### Full Stack
+### Full Stack (Postgres + Redis + Qdrant + App)
 
 ```bash
 docker-compose up --build
@@ -181,7 +189,7 @@ npm start
 | `npm run dev` | Start dev server with hot reload |
 | `npm run build` | Compile TypeScript to `dist/` |
 | `npm start` | Run production build |
-| `npm run seed` | Seed 10 mentor profiles |
+| `npm run seed` | Seed mentor profiles |
 | `npm run embed-mentors` | Generate & upsert mentor embeddings |
 | `npm run prisma:generate` | Regenerate Prisma client |
 | `npm run prisma:migrate` | Run database migrations |

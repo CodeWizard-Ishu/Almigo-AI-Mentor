@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   FileText,
@@ -18,12 +18,17 @@ import {
 } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CopyButton } from "@/components/ui/CopyButton";
+import { HistoryPanel } from "@/components/ui/HistoryPanel";
 import { useSummarize } from "@/hooks/useSummarize";
-import type { SessionSummaryOutput } from "@/types";
+import { getSummaries } from "@/services/history";
+import type { SessionSummaryOutput, SavedSummaryHistory } from "@/types";
 
 export default function SummarizePage() {
   const [transcript, setTranscript] = useState("");
-  const { mutate, data, isPending, error, reset } = useSummarize();
+  const { mutate, data: mutationData, isPending, error, reset } = useSummarize();
+  const [loadedSummary, setLoadedSummary] = useState<SessionSummaryOutput | null>(null);
+
+  const data = loadedSummary || mutationData;
 
   const handleSummarize = () => {
     if (transcript.trim().length >= 50) {
@@ -33,8 +38,14 @@ export default function SummarizePage() {
 
   const handleReset = () => {
     setTranscript("");
+    setLoadedSummary(null);
     reset();
   };
+
+  const handleHistorySelect = useCallback((item: SavedSummaryHistory) => {
+    setTranscript(item.transcript);
+    setLoadedSummary(item.result);
+  }, []);
 
   const charCount = transcript.length;
   const isValid = charCount >= 50;
@@ -54,6 +65,28 @@ export default function SummarizePage() {
           with key takeaways and action items.
         </p>
       </div>
+
+      {/* History Panel */}
+      <HistoryPanel<SavedSummaryHistory>
+        fetchFn={getSummaries}
+        getKey={(item) => item.id}
+        onSelect={handleHistorySelect}
+        label="Past Summaries"
+        renderItem={(item) => (
+          <div className="space-y-1">
+            <p className="text-sm font-medium line-clamp-1">
+              {item.result.summary.slice(0, 80)}…
+            </p>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span>{item.result.keyTakeaways.length} takeaways</span>
+              <span>·</span>
+              <span>{item.result.actionItems.length} actions</span>
+              <span>·</span>
+              <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+            </div>
+          </div>
+        )}
+      />
 
       {/* Input */}
       <Card>

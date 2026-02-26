@@ -11,3 +11,15 @@ export const rateLimiter = rateLimit({
     error: "Too many requests, please try again later.",
   },
 });
+
+// Stricter limiter for auth endpoints (brute-force protection)
+export const authRateLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: {
+    success: false,
+    error: "Too many auth attempts, please try again later.",
+  },
+});

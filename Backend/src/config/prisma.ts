@@ -1,5 +1,4 @@
 import { PrismaClient } from "@prisma/client";
-import { withAccelerate } from "@prisma/extension-accelerate";
 import { logger } from "../utils/logger";
 
 const prismaClientSingleton = () => {
@@ -8,7 +7,7 @@ const prismaClientSingleton = () => {
       process.env.NODE_ENV === "development"
         ? ["query", "warn", "error"]
         : ["error"],
-  }).$extends(withAccelerate());
+  });
 };
 
 // Prevent multiple instances during hot-reload in development
@@ -26,5 +25,5 @@ export { prisma };
 
 export async function disconnectPrisma(): Promise<void> {
   logger.info("Disconnecting Prisma client...");
-  await (prisma as unknown as PrismaClient).$disconnect();
+  await prisma.$disconnect();
 }

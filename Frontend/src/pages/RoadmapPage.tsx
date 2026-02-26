@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { X, Plus, Map, Clock, Target, Sparkles } from "lucide-react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { HistoryPanel } from "@/components/ui/HistoryPanel";
 import { useRoadmap } from "@/hooks/useRoadmap";
-import type { RoadmapOutput } from "@/types";
+import { getRoadmaps } from "@/services/history";
+import type { RoadmapOutput, SavedRoadmapHistory } from "@/types";
 
 const TIMELINE_OPTIONS = [
   "1 month",
@@ -34,7 +36,10 @@ export default function RoadmapPage() {
   const [skillInput, setSkillInput] = useState("");
   const [timeline, setTimeline] = useState("3 months");
 
-  const { mutate, data, isPending, error, reset } = useRoadmap();
+  const { mutate, data: mutationData, isPending, error, reset } = useRoadmap();
+  const [loadedRoadmap, setLoadedRoadmap] = useState<RoadmapOutput | null>(null);
+
+  const data = loadedRoadmap || mutationData;
 
   const addSkill = () => {
     const trimmed = skillInput.trim();
@@ -66,8 +71,16 @@ export default function RoadmapPage() {
     setSkills([]);
     setSkillInput("");
     setTimeline("3 months");
+    setLoadedRoadmap(null);
     reset();
   };
+
+  const handleHistorySelect = useCallback((item: SavedRoadmapHistory) => {
+    setGoal(item.goal);
+    setSkills(item.currentSkills);
+    setTimeline(item.timeline);
+    setLoadedRoadmap(item.result);
+  }, []);
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 space-y-6">
@@ -84,6 +97,36 @@ export default function RoadmapPage() {
           current skills.
         </p>
       </div>
+
+      {/* History Panel */}
+      <HistoryPanel<SavedRoadmapHistory>
+        fetchFn={getRoadmaps}
+        getKey={(item) => item.id}
+        onSelect={handleHistorySelect}
+        label="Past Roadmaps"
+        renderItem={(item) => (
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium truncate">{item.goal}</p>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+              <span>{item.timeline}</span>
+              <span>·</span>
+              <span>{new Date(item.createdAt).toLocaleDateString()}</span>
+            </div>
+            <div className="flex flex-wrap gap-1 mt-1">
+              {item.currentSkills.slice(0, 3).map((s) => (
+                <Badge key={s} variant="outline" className="text-[10px] px-1.5 py-0">
+                  {s}
+                </Badge>
+              ))}
+              {item.currentSkills.length > 3 && (
+                <Badge variant="outline" className="text-[10px] px-1.5 py-0">
+                  +{item.currentSkills.length - 3}
+                </Badge>
+              )}
+            </div>
+          </div>
+        )}
+      />
 
       {/* Form */}
       <Card>

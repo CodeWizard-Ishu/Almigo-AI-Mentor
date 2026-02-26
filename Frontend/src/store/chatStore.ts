@@ -15,6 +15,7 @@ interface ChatState {
   setIsStreaming: (streaming: boolean) => void;
   setConversationId: (id: string) => void;
   clearMessages: () => void;
+  loadConversation: (id: string, messages: ChatMessage[]) => void;
 }
 
 function generateId(): string {
@@ -67,6 +68,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
     set({
       messages: [],
       conversationId: generateId(),
+      streamingContent: "",
+      isStreaming: false,
+    }),
+
+  loadConversation: (id: string, messages: ChatMessage[]) =>
+    set({
+      conversationId: id,
+      messages,
       streamingContent: "",
       isStreaming: false,
     }),

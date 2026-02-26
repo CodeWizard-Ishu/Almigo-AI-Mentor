@@ -1,15 +1,18 @@
 # Almigo — AI Mentor Frontend
 
-A modern, production-quality frontend for the Almigo AI Mentor platform. Built with React, TypeScript, Vite, Tailwind CSS, and shadcn/ui.
+A modern, production-quality React frontend for the Almigo AI Mentor platform with authentication, real-time streaming chat, and rich history features.
 
 ## Features
 
-- 💬 **Almigo Chat** — ChatGPT-like streaming conversation with markdown rendering
-- 🗺️ **Learning Roadmap Generator** — AI-powered personalized learning plans
-- 📝 **Session Summarizer** — Extract key takeaways and action items from transcripts
-- 🔍 **Semantic Mentor Search** — Find mentors by skills and expertise using AI search
+- 🔐 **Authentication** — Login, signup, JWT token management, route guards, auto-refresh
+- 💬 **Almigo Chat** — ChatGPT-like streaming conversation with markdown rendering and conversation history sidebar
+- 🗺️ **Learning Roadmap Generator** — AI-powered personalized learning plans with history panel
+- 📝 **Session Summarizer** — Extract key takeaways and action items with history panel
+- 🔍 **Semantic Mentor Search** — Find mentors by skills and expertise with search history
 - 🌓 **Dark Mode** — System-aware with manual toggle
 - 📱 **Responsive** — Mobile-first design with sidebar navigation
+- 🔔 **Toast Notifications** — User-friendly error/success messages
+- 🛡️ **Data Isolation** — User state fully cleared on logout, no cross-user data leaks
 
 ## Tech Stack
 
@@ -19,11 +22,12 @@ A modern, production-quality frontend for the Almigo AI Mentor platform. Built w
 | TypeScript | Type safety |
 | Vite 7 | Build tool & dev server |
 | Tailwind CSS 4 | Utility-first styling |
-| shadcn/ui | Reusable component library |
+| shadcn/ui + Radix UI | Accessible component library |
 | React Query | Server state management |
-| Zustand | Client state (chat) |
-| React Router | Routing |
+| Zustand | Client state (auth, chat, toasts) |
+| React Router | Routing with protected/guest guards |
 | Framer Motion | Animations |
+| Axios | HTTP client with interceptors |
 | Lucide React | Icons |
 
 ## Getting Started
@@ -37,16 +41,9 @@ A modern, production-quality frontend for the Almigo AI Mentor platform. Built w
 ### Setup
 
 ```bash
-# Navigate to frontend directory
 cd Frontend
-
-# Install dependencies
 npm install
-
-# Copy environment config
 cp .env.example .env
-
-# Start dev server
 npm run dev
 ```
 
@@ -71,99 +68,87 @@ Output will be in the `dist/` directory.
 ```
 src/
 ├── components/
-│   ├── chat/              # Chat feature components
-│   │   ├── ChatInput.tsx
-│   │   ├── MessageBubble.tsx
-│   │   ├── StreamingBubble.tsx
-│   │   └── TypingIndicator.tsx
+│   ├── auth/              # Authentication
+│   │   ├── AuthLayout.tsx         # Shared auth page layout (logo, card)
+│   │   └── RouteGuards.tsx        # ProtectedRoute & GuestRoute (key={user.id})
+│   ├── chat/              # Chat feature
+│   │   ├── ChatHistorySidebar.tsx  # Collapsible conversation history panel
+│   │   ├── ChatInput.tsx          # Message input with Enter/Shift+Enter
+│   │   ├── MessageBubble.tsx      # Chat message with markdown + copy
+│   │   ├── StreamingBubble.tsx    # Live streaming response
+│   │   ├── TypingIndicator.tsx    # Typing animation
+│   │   └── markdownConfig.tsx     # react-markdown configuration
 │   ├── layout/            # App layout
-│   │   ├── Layout.tsx
-│   │   └── Sidebar.tsx
+│   │   ├── Layout.tsx             # Main layout with sidebar + outlet
+│   │   └── Sidebar.tsx            # Navigation + user info + logout
 │   └── ui/                # Reusable UI (shadcn + custom)
-│       ├── CopyButton.tsx
-│       ├── EmptyState.tsx
-│       ├── ErrorBoundary.tsx
-│       ├── ThemeToggle.tsx
-│       └── (shadcn components)
+│       ├── HistoryPanel.tsx       # Generic history panel (roadmaps, summaries, searches)
+│       ├── ToastContainer.tsx     # Toast notification system
+│       ├── CopyButton.tsx, EmptyState.tsx, ErrorBoundary.tsx, ThemeToggle.tsx
+│       └── (shadcn: button, card, input, textarea, badge, skeleton, tooltip, collapsible)
 ├── hooks/                 # Custom React hooks
-│   ├── useChat.ts
-│   ├── useMentorSearch.ts
-│   ├── useRoadmap.ts
-│   └── useSummarize.ts
-├── lib/                   # Utilities (shadcn)
+│   ├── useChat.ts              # Chat logic (send, stream, retry, abort)
+│   ├── useMentorSearch.ts      # Debounced mentor search
+│   ├── useRoadmap.ts           # Roadmap generation mutation
+│   └── useSummarize.ts         # Summarize mutation
 ├── pages/                 # Route pages
-│   ├── ChatPage.tsx
-│   ├── RoadmapPage.tsx
-│   ├── SearchPage.tsx
-│   └── SummarizePage.tsx
+│   ├── LoginPage.tsx           # Email/password login with validation
+│   ├── SignupPage.tsx          # Registration with password strength hints
+│   ├── ChatPage.tsx            # AI chat with history sidebar
+│   ├── RoadmapPage.tsx         # Roadmap generator with history panel
+│   ├── SearchPage.tsx          # Mentor search with history panel
+│   └── SummarizePage.tsx       # Session summarizer with history panel
 ├── services/              # API layer
-│   └── api.ts
+│   ├── api.ts                  # Axios client + SSE streaming + auth interceptors
+│   ├── auth.ts                 # Auth API (signup, login, logout, me, refresh)
+│   └── history.ts              # History API (conversations, roadmaps, summaries, searches)
 ├── store/                 # Zustand stores
-│   └── chatStore.ts
+│   ├── authStore.ts            # User, token, login/signup/logout/initialize
+│   ├── chatStore.ts            # Messages, streaming, conversation loading
+│   └── toastStore.ts           # Toast notifications
 ├── types/                 # TypeScript types
-│   └── index.ts
-├── App.tsx                # Root component
+│   └── index.ts                # All interfaces (Auth, Chat, Roadmap, Summary, Search, API)
+├── lib/                   # Utilities
+│   └── utils.ts                # cn() classname utility
+├── App.tsx                # Root: Router, AuthInitializer, route layout
 ├── main.tsx               # Entry point
-└── index.css              # Global styles + theme
+└── index.css              # Global styles + Tailwind theme
 ```
 
-## API Endpoints
+## Auth Flow
 
-| Endpoint | Method | Description |
+1. **Login/Signup** → Backend returns access token + sets httpOnly refresh cookie
+2. **API Requests** → Axios interceptor attaches `Bearer {token}` header
+3. **Token Expiry** → 401 triggers auto-logout; `initialize()` tries refresh on page load
+4. **Logout** → Clears localStorage, Zustand auth/chat stores, redirects to login
+5. **User Switch** → `<Outlet key={user.id}>` remounts all pages, resetting component caches
+
+## API Endpoints Consumed
+
+| Endpoint | Method | Page |
 |---|---|---|
-| `/api/ai/chat` | POST | Stream Almigo response (SSE) |
-| `/api/ai/roadmap` | POST | Generate learning roadmap |
-| `/api/ai/summarize` | POST | Summarize session transcript |
-| `/api/ai/search-mentors` | POST | Semantic mentor search |
+| `/api/auth/signup` | POST | SignupPage |
+| `/api/auth/login` | POST | LoginPage |
+| `/api/auth/logout` | POST | Sidebar |
+| `/api/auth/me` | GET | AuthInitializer |
+| `/api/auth/refresh` | POST | AuthInitializer |
+| `/api/ai/chat` | POST (SSE) | ChatPage |
+| `/api/ai/roadmap` | POST | RoadmapPage |
+| `/api/ai/summarize` | POST | SummarizePage |
+| `/api/ai/search-mentors` | POST | SearchPage |
+| `/api/ai/conversations` | GET | ChatHistorySidebar |
+| `/api/ai/conversations/:id` | GET | ChatHistorySidebar |
+| `/api/ai/roadmaps` | GET | RoadmapPage HistoryPanel |
+| `/api/ai/summaries` | GET | SummarizePage HistoryPanel |
+| `/api/ai/search-history` | GET | SearchPage HistoryPanel |
 
-## Example API Responses
+## Security
 
-### Roadmap Response
-```json
-{
-  "success": true,
-  "data": {
-    "title": "Full-Stack Developer Roadmap",
-    "duration": "6 months",
-    "phases": [
-      {
-        "phase": "Phase 1: Frontend Foundations",
-        "topics": ["HTML/CSS", "JavaScript ES6+", "React Basics"],
-        "resources": ["MDN Web Docs", "React Official Tutorial"]
-      }
-    ]
-  }
-}
-```
+- **No cross-user data leaks:** Chat store cleared on logout; protected routes keyed by `user.id`
+- **Token handling:** Stored in localStorage; auto-attached via Axios interceptor; auto-logout on 401
+- **User-friendly errors:** Axios errors parsed to show backend messages (not raw status codes)
+- **Route protection:** `ProtectedRoute` redirects to `/login`; `GuestRoute` redirects to `/`
 
-### Summary Response
-```json
-{
-  "success": true,
-  "data": {
-    "summary": "The session focused on career transition strategies...",
-    "keyTakeaways": ["Focus on building portfolio projects", "Network actively"],
-    "actionItems": ["Complete React course by end of month", "Update LinkedIn profile"]
-  }
-}
-```
+## License
 
-### Mentor Search Response
-```json
-{
-  "success": true,
-  "data": [
-    {
-      "mentor": {
-        "id": "abc123",
-        "name": "Jane Smith",
-        "email": "jane@example.com",
-        "bio": "Senior ML Engineer...",
-        "skills": ["Python", "TensorFlow", "MLOps"],
-        "expertise": ["Machine Learning", "Data Science"]
-      },
-      "similarityScore": 0.92
-    }
-  ]
-}
-```
+MIT

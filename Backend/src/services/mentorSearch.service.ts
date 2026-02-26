@@ -7,6 +7,8 @@ import { generateEmbedding, generateEmbeddings } from "./embedding.service";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";
 
+const MAX_HISTORY_PER_USER = 5;
+
 
 
 interface MentorSearchResult {
@@ -89,7 +91,8 @@ export async function upsertMentorEmbeddings(
 
 export async function searchMentors(
   query: string,
-  topK = 5
+  topK = 5,
+  userId?: string
 ): Promise<MentorSearchResult[]> {
   if (!query.trim()) {
     throw new AppError("Search query cannot be empty", 400);
@@ -134,6 +137,34 @@ export async function searchMentors(
         similarityScore: result.score,
       };
     });
+
+  // Save to user search history (with FIFO eviction)
+  if (userId) {
+    const searchCount = await prisma.searchHistory.count({
+      where: { userId },
+    });
+
+    if (searchCount >= MAX_HISTORY_PER_USER) {
+      const toDelete = await prisma.searchHistory.findMany({
+        where: { userId },
+        orderBy: { createdAt: "asc" },
+        take: searchCount - MAX_HISTORY_PER_USER + 1,
+        select: { id: true },
+      });
+      await prisma.searchHistory.deleteMany({
+        where: { id: { in: toDelete.map((s) => s.id) } },
+      });
+    }
+
+    await prisma.searchHistory.create({
+      data: {
+        userId,
+        query,
+        topK,
+        resultIds: results.map((r) => r.mentor.id),
+      },
+    });
+  }
 
   logger.info(
     `Mentor search for "${query}" returned ${results.length} results`

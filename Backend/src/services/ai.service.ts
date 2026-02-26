@@ -2,12 +2,13 @@ import { Response } from "express";
 import { ChatCompletionMessageParam } from "groq-sdk/resources/chat/completions";
 import { groq } from "../config/groq";
 import { prisma } from "../config/prisma";
+import { Prisma } from "@prisma/client";
 import { logger } from "../utils/logger";
 import { AppError } from "../middleware/errorHandler";
 
 const MAX_HISTORY_MESSAGES = 20;
-
 const MAX_HISTORY_CHARS = 12_000; // ~3000 tokens (4 chars ≈ 1 token)
+const MAX_HISTORY_PER_USER = 5;
 
 const CHAT_MODEL = "llama-3.3-70b-versatile";
 
@@ -69,11 +70,39 @@ function trimHistory(
   return trimmed;
 }
 
+/**
+ * Evicts oldest conversations for a user if at or above the cap.
+ * Called before creating a new conversation.
+ */
+async function evictOldConversations(userId: string): Promise<void> {
+  const count = await prisma.conversation.count({
+    where: { menteeId: userId },
+  });
+
+  if (count >= MAX_HISTORY_PER_USER) {
+    const toDelete = await prisma.conversation.findMany({
+      where: { menteeId: userId },
+      orderBy: { createdAt: "asc" },
+      take: count - MAX_HISTORY_PER_USER + 1,
+      select: { id: true },
+    });
+
+    await prisma.conversation.deleteMany({
+      where: { id: { in: toDelete.map((c) => c.id) } },
+    });
+
+    logger.info(
+      `Evicted ${toDelete.length} old conversation(s) for user ${userId}`
+    );
+  }
+}
+
 
 export async function streamChat(
   conversationId: string,
   userMessage: string,
-  res: Response
+  res: Response,
+  userId: string
 ): Promise<void> {
 
   let conversation = await prisma.conversation.findUnique({
@@ -86,12 +115,22 @@ export async function streamChat(
     },
   });
 
+  if (conversation && conversation.menteeId !== userId) {
+    res.status(403).json({
+      success: false,
+      error: "You don't have access to this conversation.",
+    });
+    return;
+  }
+
   if (!conversation) {
+    // Evict oldest if user is at the cap
+    await evictOldConversations(userId);
 
     conversation = await prisma.conversation.create({
       data: {
         id: conversationId,
-        menteeId: "anonymous",
+        menteeId: userId,
         title: userMessage.slice(0, 50) || "New Conversation",
       },
       include: {
@@ -101,7 +140,7 @@ export async function streamChat(
         },
       },
     });
-    logger.info(`Created new conversation ${conversationId}`);
+    logger.info(`Created new conversation ${conversationId} for user ${userId}`);
   }
 
 
@@ -191,7 +230,8 @@ interface RoadmapOutput {
 export async function generateRoadmap(
   goal: string,
   currentSkills: string[],
-  timeline: string
+  timeline: string,
+  userId: string
 ): Promise<RoadmapOutput> {
   const systemPrompt = `You are an expert learning advisor. Generate a detailed, structured learning roadmap.
 
@@ -245,7 +285,34 @@ Timeline: ${timeline}`;
     throw new AppError("Invalid roadmap structure from AI", 502);
   }
 
-  logger.info(`Roadmap generated: "${parsed.title}"`);
+  // Save to user history (with FIFO eviction)
+  const roadmapCount = await prisma.savedRoadmap.count({
+    where: { userId },
+  });
+
+  if (roadmapCount >= MAX_HISTORY_PER_USER) {
+    const toDelete = await prisma.savedRoadmap.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+      take: roadmapCount - MAX_HISTORY_PER_USER + 1,
+      select: { id: true },
+    });
+    await prisma.savedRoadmap.deleteMany({
+      where: { id: { in: toDelete.map((r: { id: any; }) => r.id) } },
+    });
+  }
+
+  await prisma.savedRoadmap.create({
+    data: {
+      userId,
+      goal,
+      currentSkills,
+      timeline,
+      result: parsed as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  logger.info(`Roadmap generated and saved: "${parsed.title}" for user ${userId}`);
   return parsed;
 }
 
@@ -259,7 +326,8 @@ interface SessionSummaryOutput {
 
 
 export async function summarizeSession(
-  transcript: string
+  transcript: string,
+  userId: string
 ): Promise<SessionSummaryOutput> {
   const systemPrompt = `You are an expert at summarizing mentoring sessions. Analyze the provided transcript and extract key information.
 
@@ -306,6 +374,31 @@ Guidelines:
     throw new AppError("Invalid summary structure from AI", 502);
   }
 
-  logger.info("Session summarized successfully");
+  // Save to user history (with FIFO eviction)
+  const summaryCount = await prisma.savedSummary.count({
+    where: { userId },
+  });
+
+  if (summaryCount >= MAX_HISTORY_PER_USER) {
+    const toDelete = await prisma.savedSummary.findMany({
+      where: { userId },
+      orderBy: { createdAt: "asc" },
+      take: summaryCount - MAX_HISTORY_PER_USER + 1,
+      select: { id: true },
+    });
+    await prisma.savedSummary.deleteMany({
+      where: { id: { in: toDelete.map((s: { id: any; }) => s.id) } },
+    });
+  }
+
+  await prisma.savedSummary.create({
+    data: {
+      userId,
+      transcript,
+      result: parsed as unknown as Prisma.InputJsonValue,
+    },
+  });
+
+  logger.info(`Session summarized and saved for user ${userId}`);
   return parsed;
 }
