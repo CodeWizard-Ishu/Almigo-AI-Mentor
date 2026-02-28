@@ -2,6 +2,7 @@ import { createApp } from "./app";
 import { env } from "./config/env";
 import { disconnectPrisma } from "./config/prisma";
 import { disconnectRedis } from "./config/redis";
+import { startCronJobs } from "./cron";
 import { logger } from "./utils/logger";
 
 async function main(): Promise<void> {
@@ -11,6 +12,7 @@ async function main(): Promise<void> {
     logger.info(`🚀 Almigo Backend running on port ${env.PORT}`);
     logger.info(`   Environment: ${env.NODE_ENV}`);
     logger.info(`   Health check: http://localhost:${env.PORT}/health`);
+    startCronJobs();
   });
 
   const shutdown = async (signal: string): Promise<void> => {
