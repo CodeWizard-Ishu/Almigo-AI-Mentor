@@ -21,25 +21,25 @@ const NAV_ITEMS = [
     to: "/",
     icon: MessageSquare,
     label: "Chat",
-    gradient: "from-violet-500 to-indigo-600",
+    gradient: "from-teal-500 to-cyan-400",
   },
   {
     to: "/roadmap",
     icon: Map,
     label: "Roadmap",
-    gradient: "from-emerald-500 to-teal-600",
+    gradient: "from-cyan-400 to-teal-500",
   },
   {
     to: "/summarize",
     icon: FileText,
     label: "Summarize",
-    gradient: "from-amber-500 to-orange-600",
+    gradient: "from-teal-400 to-emerald-400",
   },
   {
     to: "/search",
     icon: Users,
     label: "Search Mentors",
-    gradient: "from-blue-500 to-cyan-600",
+    gradient: "from-emerald-500 to-cyan-400",
   },
 ];
 
@@ -83,7 +83,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
         {/* Logo */}
         <div className="p-4 border-b flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white shadow-md">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white shadow-md shadow-teal-500/25">
               <GraduationCap className="w-5 h-5" />
             </div>
             <div>
@@ -143,7 +143,7 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* User info */}
           {user && (
             <div className="flex items-center gap-3 px-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white text-xs font-bold shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold shrink-0">
                 {user.name.charAt(0).toUpperCase()}
               </div>
               <div className="flex-1 min-w-0">

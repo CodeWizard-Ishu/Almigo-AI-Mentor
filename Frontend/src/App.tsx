@@ -14,6 +14,7 @@ import SummarizePage from "@/pages/SummarizePage";
 import SearchPage from "@/pages/SearchPage";
 import LoginPage from "@/pages/LoginPage";
 import SignupPage from "@/pages/SignupPage";
+import LandingPage from "@/pages/LandingPage";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -45,8 +46,9 @@ export default function App() {
           <AuthInitializer>
             <BrowserRouter>
               <Routes>
-                {/* Guest-only routes (login/signup) */}
+                {/* Guest-only routes (login/signup/landing) */}
                 <Route element={<GuestRoute />}>
+                  <Route path="/landing" element={<LandingPage />} />
                   <Route element={<AuthLayout />}>
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/signup" element={<SignupPage />} />

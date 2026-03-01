@@ -124,7 +124,7 @@ export default function LoginPage() {
         <Button
           type="submit"
           disabled={isLoading}
-          className="w-full h-11 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-700 hover:to-indigo-700 text-white font-semibold shadow-lg shadow-violet-500/20 transition-all duration-200"
+          className="w-full h-11 rounded-xl bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-600 hover:to-cyan-500 text-white font-semibold shadow-lg shadow-teal-500/20 transition-all duration-200"
         >
           {isLoading ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -143,7 +143,7 @@ export default function LoginPage() {
           Don&apos;t have an account?{" "}
           <Link
             to="/signup"
-            className="font-semibold text-violet-500 hover:text-violet-400 transition-colors"
+            className="font-semibold text-teal-500 hover:text-teal-400 transition-colors"
           >
             Create one
           </Link>

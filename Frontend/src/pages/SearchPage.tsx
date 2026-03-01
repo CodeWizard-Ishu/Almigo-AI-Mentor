@@ -25,7 +25,7 @@ export default function SearchPage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white">
             <Users className="w-4 h-4" />
           </div>
           <h1 className="text-2xl font-bold">Find a Mentor</h1>
@@ -108,7 +108,7 @@ export default function SearchPage() {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.3 }}
           >
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center mx-auto mb-4 text-white shadow-lg">
               <Users className="w-8 h-8" />
             </div>
             <h3 className="text-lg font-semibold mb-1">
@@ -147,7 +147,7 @@ function MentorCard({
         <CardHeader className="pb-3">
           <div className="flex items-start justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-cyan-600 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white font-bold text-sm">
                 {mentor.name
                   .split(" ")
                   .map((n) => n[0])
@@ -201,13 +201,13 @@ function MentorCard({
               {mentor.expertise.slice(0, 4).map((exp) => (
                 <Badge
                   key={exp}
-                  className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20"
+                  className="text-xs bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20"
                 >
                   {exp}
                 </Badge>
               ))}
               {mentor.expertise.length > 4 && (
-                <Badge className="text-xs bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20">
+                <Badge className="text-xs bg-teal-500/10 text-teal-600 dark:text-teal-400 border-teal-500/20">
                   +{mentor.expertise.length - 4}
                 </Badge>
               )}

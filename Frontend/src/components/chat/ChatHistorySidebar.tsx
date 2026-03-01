@@ -130,7 +130,7 @@ export function ChatHistorySidebar() {
             {/* Header */}
             <div className="p-3 border-b flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-purple-500 to-pink-600 flex items-center justify-center text-white">
+                <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white">
                   <History className="w-3.5 h-3.5" />
                 </div>
                 <span className="text-sm font-semibold">History</span>

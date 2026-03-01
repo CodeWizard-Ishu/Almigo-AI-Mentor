@@ -7,9 +7,9 @@ export function AuthLayout() {
     <div className="min-h-screen relative flex flex-col items-center justify-center bg-background p-4">
       {/* Ambient gradient blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-br from-violet-500/8 to-indigo-500/5 blur-3xl" />
-        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-gradient-to-br from-blue-500/8 to-cyan-500/5 blur-3xl" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-violet-500/3 to-transparent blur-3xl" />
+        <div className="absolute -top-40 -left-40 w-96 h-96 rounded-full bg-gradient-to-br from-teal-500/8 to-cyan-500/5 blur-3xl" />
+        <div className="absolute -bottom-40 -right-40 w-96 h-96 rounded-full bg-gradient-to-br from-cyan-500/8 to-emerald-500/5 blur-3xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-teal-500/3 to-transparent blur-3xl" />
       </div>
 
       {/* Theme toggle */}
@@ -19,7 +19,7 @@ export function AuthLayout() {
 
       {/* Logo */}
       <div className="relative z-10 flex items-center gap-3 mb-8">
-        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-violet-500/25">
+        <div className="w-11 h-11 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white shadow-lg shadow-teal-500/25">
           <GraduationCap className="w-6 h-6" />
         </div>
         <div>

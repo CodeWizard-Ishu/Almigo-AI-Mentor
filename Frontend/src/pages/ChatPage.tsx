@@ -48,7 +48,7 @@ export default function ChatPage() {
         {/* Header */}
         <div className="border-b px-4 py-3 flex items-center justify-between bg-background/80 backdrop-blur-sm">
           <div className="flex items-center gap-2 pl-10 lg:pl-10">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center text-white">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white">
               <MessageSquare className="w-4 h-4" />
             </div>
             <div>
@@ -81,7 +81,7 @@ export default function ChatPage() {
                 transition={{ duration: 0.5 }}
                 className="text-center max-w-lg"
               >
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 flex items-center justify-center mx-auto mb-6 text-white shadow-lg">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center mx-auto mb-6 text-white shadow-lg">
                   <MessageSquare className="w-8 h-8" />
                 </div>
                 <h2 className="text-2xl font-bold mb-2">

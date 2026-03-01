@@ -27,7 +27,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
           "w-8 h-8 rounded-lg flex items-center justify-center shrink-0 mt-0.5",
           isUser
             ? "bg-primary text-primary-foreground"
-            : "bg-gradient-to-br from-violet-500 to-indigo-600 text-white"
+            : "bg-gradient-to-br from-teal-500 to-cyan-400 text-white"
         )}
       >
         {isUser ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}

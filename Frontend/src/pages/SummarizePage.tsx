@@ -57,7 +57,7 @@ export default function SummarizePage() {
       {/* Header */}
       <div>
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center text-white">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-cyan-400 flex items-center justify-center text-white">
             <FileText className="w-4 h-4" />
           </div>
           <h1 className="text-2xl font-bold">Session Summarizer</h1>
@@ -135,7 +135,7 @@ export default function SummarizePage() {
             <Button
               onClick={handleSummarize}
               disabled={!isValid || isPending}
-              className="bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 text-white"
+              className="bg-gradient-to-r from-teal-500 to-cyan-400 hover:from-teal-600 hover:to-cyan-500 text-white"
             >
               {isPending ? (
                 <>
@@ -196,7 +196,7 @@ function SummaryDisplay({ summary }: { summary: SessionSummaryOutput }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <FileText className="w-5 h-5 text-amber-500" />
+              <FileText className="w-5 h-5 text-teal-500" />
               Summary
             </CardTitle>
             <CopyButton text={summary.summary} />
@@ -241,7 +241,7 @@ function SummaryDisplay({ summary }: { summary: SessionSummaryOutput }) {
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg flex items-center gap-2">
-              <ArrowRight className="w-5 h-5 text-blue-500" />
+              <ArrowRight className="w-5 h-5 text-teal-500" />
               Action Items
             </CardTitle>
             <CopyButton text={summary.actionItems.join("\n")} />
@@ -257,8 +257,8 @@ function SummaryDisplay({ summary }: { summary: SessionSummaryOutput }) {
                 transition={{ delay: i * 0.1 + 0.2 }}
                 className="flex items-start gap-2.5 text-sm"
               >
-                <div className="w-5 h-5 rounded-full border-2 border-blue-500 flex items-center justify-center shrink-0 mt-0.5">
-                  <span className="text-xs font-bold text-blue-500">
+                <div className="w-5 h-5 rounded-full border-2 border-teal-500 flex items-center justify-center shrink-0 mt-0.5">
+                   <span className="text-xs font-bold text-teal-500">
                     {i + 1}
                   </span>
                 </div>
