@@ -9,16 +9,16 @@ const PRODUCT_LINKS = [
 ] as const;
 
 const COMPANY_LINKS = [
-  { label: "About", href: "#" },
+  { label: "About", to: "/about" },
   { label: "Blog", href: "#" },
   { label: "Careers", href: "#" },
-  { label: "Contact", href: "#" },
+  { label: "Contact", to: "/contact" },
 ] as const;
 
 const SOCIAL_LINKS = [
-  { icon: Github, href: "#", label: "GitHub" },
+  { icon: Github, href: "https://github.com/CodeWizard-Ishu", label: "GitHub" },
   { icon: Twitter, href: "#", label: "Twitter" },
-  { icon: Linkedin, href: "#", label: "LinkedIn" },
+  { icon: Linkedin, href: "https://www.linkedin.com/in/utkarshjaiswal17/", label: "LinkedIn" },
 ] as const;
 
 export function LandingFooter() {
@@ -69,12 +69,21 @@ export function LandingFooter() {
             <ul className="space-y-2.5">
               {COMPANY_LINKS.map((link) => (
                 <li key={link.label}>
-                  <a
-                    href={link.href}
-                    className="text-sm text-slate-500 dark:text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
-                  >
-                    {link.label}
-                  </a>
+                  {"to" in link && link.to ? (
+                    <Link
+                      to={link.to}
+                      className="text-sm text-slate-500 dark:text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                    >
+                      {link.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={"href" in link ? link.href : "#"}
+                      className="text-sm text-slate-500 dark:text-gray-500 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                    >
+                      {link.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

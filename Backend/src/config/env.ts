@@ -32,6 +32,18 @@ const envSchema = z.object({
   JWT_ACCESS_EXPIRES_IN: z.string().default("15m"),
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
 
+  SMTP_HOST: z.string().default("smtp.gmail.com"),
+  SMTP_PORT: z
+    .string()
+    .default("587")
+    .transform((val) => parseInt(val, 10)),
+  SMTP_USER: z.string().optional().default(""),
+  SMTP_PASS: z.string().optional().default(""),
+  CONTACT_TO_EMAIL: z
+    .string()
+    .email()
+    .default("utkarshjaiswal0987@gmail.com"),
+
   CORS_ORIGIN: z.string().default("*"),
 
   RATE_LIMIT_WINDOW_MS: z

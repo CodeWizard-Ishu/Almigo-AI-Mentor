@@ -8,6 +8,7 @@ import { globalErrorHandler, notFoundHandler } from "./middleware/errorHandler";
 import { authenticate } from "./middleware/auth.middleware";
 import authRoutes from "./routes/auth.routes";
 import aiRoutes from "./routes/ai.routes";
+import contactRoutes from "./routes/contact.routes";
 
 export function createApp(): express.Application {
   const app = express();
@@ -38,6 +39,9 @@ export function createApp(): express.Application {
 
   // Public auth routes
   app.use("/api/auth", authRoutes);
+
+  // Public contact route — no authentication required
+  app.use("/api/contact", contactRoutes);
 
   // Protected AI routes — require authentication
   app.use("/api/ai", authenticate, aiRoutes);
