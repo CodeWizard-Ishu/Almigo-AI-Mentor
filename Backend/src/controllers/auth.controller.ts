@@ -96,17 +96,17 @@ export async function refreshHandler(
       return;
     }
 
-    const tokens = await refreshTokens({
+    const { user, accessToken, refreshToken: newRefreshToken } = await refreshTokens({
       id: decoded.id,
       email: decoded.email,
       role: decoded.role,
     });
 
-    setRefreshCookie(res, tokens.refreshToken);
+    setRefreshCookie(res, newRefreshToken);
 
     res.status(200).json({
       success: true,
-      data: { accessToken: tokens.accessToken },
+      data: { user, accessToken },
     });
   } catch (error) {
     next(error);

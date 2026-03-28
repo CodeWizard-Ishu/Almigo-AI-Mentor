@@ -84,6 +84,7 @@ export async function loginUser(
 }
 
 export async function refreshTokens(payload: TokenPayload): Promise<{
+  user: { id: string; name: string; email: string; role: string };
   accessToken: string;
   refreshToken: string;
 }> {
@@ -102,7 +103,12 @@ export async function refreshTokens(payload: TokenPayload): Promise<{
     role: user.role,
   };
 
-  return generateTokenPair(newPayload);
+  const tokens = generateTokenPair(newPayload);
+
+  return {
+    user: { id: user.id, name: user.name, email: user.email, role: user.role },
+    ...tokens,
+  };
 }
 
 export async function getCurrentUser(
