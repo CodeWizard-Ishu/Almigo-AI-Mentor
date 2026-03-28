@@ -13,8 +13,9 @@ import contactRoutes from "./routes/contact.routes";
 export function createApp(): express.Application {
   const app = express();
 
+  // Trust exactly 1 reverse proxy hop (Render's load balancer)
   if (env.NODE_ENV === "production") {
-    app.set("trust proxy", true);
+    app.set("trust proxy", 1);
   }
 
   app.use(helmet());
