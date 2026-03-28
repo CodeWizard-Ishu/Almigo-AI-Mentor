@@ -13,6 +13,10 @@ import contactRoutes from "./routes/contact.routes";
 export function createApp(): express.Application {
   const app = express();
 
+  if (env.NODE_ENV === "production") {
+    app.set("trust proxy", true);
+  }
+
   app.use(helmet());
   app.use(
     cors({
