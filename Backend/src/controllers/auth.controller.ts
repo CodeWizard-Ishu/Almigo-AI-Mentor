@@ -11,20 +11,24 @@ import { env } from "../config/env";
 const REFRESH_COOKIE_NAME = "refreshToken";
 
 function setRefreshCookie(res: Response, token: string): void {
+  const isProd = env.NODE_ENV === "production";
+
   res.cookie(REFRESH_COOKIE_NAME, token, {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     path: "/api/auth",
   });
 }
 
 function clearRefreshCookie(res: Response): void {
+  const isProd = env.NODE_ENV === "production";
+
   res.clearCookie(REFRESH_COOKIE_NAME, {
     httpOnly: true,
-    secure: env.NODE_ENV === "production",
-    sameSite: env.NODE_ENV === "production" ? "strict" : "lax",
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
     path: "/api/auth",
   });
 }

@@ -11,7 +11,7 @@ async function main(): Promise<void> {
   const server = app.listen(env.PORT, () => {
     logger.info(`🚀 Almigo Backend running on port ${env.PORT}`);
     logger.info(`   Environment: ${env.NODE_ENV}`);
-    logger.info(`   Health check: http://localhost:${env.PORT}/health`);
+    logger.info(`   Health check: ${env.NODE_ENV === 'production' ? 'https://almigo-ai-mentor-backend.onrender.com' : `http://localhost:${env.PORT}`}/health`);
     startCronJobs();
   });
 
